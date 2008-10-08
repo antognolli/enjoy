@@ -1,0 +1,93 @@
+   group {
+      name: "screen/principal";
+      min: 385 360;
+
+      data {
+         item: "size_hint" "480 640";
+         item: "borderless" "0";
+         item: "size_step" "5 5";
+      }
+
+      images {
+         image: "bt-info.png" COMP;
+         image: "bt-info-pressed.png" COMP;
+         image: "bt-hide.png" COMP;
+         image: "bt-hide-pressed.png" COMP;
+      }
+
+      parts {
+         part {
+            name: "clipper";
+            type: RECT;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+            }
+         } //clipper
+
+         part {
+            name: "gui.playlist";
+            type: SWALLOW;
+            clip_to: "clipper";
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  to_y: "gui.panel";
+                  relative: 0.0 1.0;
+                  offset: 0 -5;
+               }
+               rel2 {
+                  relative: 1.0 1.0;
+                  offset: -1 -1;
+               }
+            }
+         } // gui.playlist
+
+         part {
+            name: "gui.panel";
+            type: SWALLOW;
+            clip_to: "clipper";
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 0 0;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -1 360;
+               }
+            }
+            description {
+               state: "minimized" 0.0;
+               inherit: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 0 0;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -1 162;
+               }
+            }
+         } // gui.panel
+
+         programs {
+            program {
+               name: "gui,hide,info_panel";
+               signal: "view,change,hide_info";
+               action: STATE_SET "minimized" 0.0;
+               transition: DECELERATE 0.5;
+               target: "gui.panel";
+            }
+            program {
+               name: "gui,show,info_panel";
+               signal: "view,change,show_info";
+               action: STATE_SET "default" 0.0;
+               transition: ACCELERATE 0.5;
+               target: "gui.panel";
+            }
+         }
+      }
+   }

@@ -1,0 +1,3 @@
+group "String_Descriptor" struct {
+    value "value" string: "gstreamer";
+}

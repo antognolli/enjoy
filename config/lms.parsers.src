@@ -1,0 +1,22 @@
+group "StringList_Descriptor" struct {
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "id3";
+    }
+  }
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "ogg";
+    }
+  }
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "asf";
+    }
+  }
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "mp4";
+    }
+  }
+}

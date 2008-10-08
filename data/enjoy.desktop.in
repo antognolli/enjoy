@@ -1,0 +1,14 @@
+
+[Desktop Entry]
+Type=Application
+Version=@VERSION@
+Encoding=UTF-8
+Name=Enjoy
+GenericName=Audio Player
+Exec=enjoy
+Comment=Enjoy - music the way it should be!
+Icon=enjoy
+Terminal=false
+StartupNotify=true
+Categories=Enlightenment;AudioVideo;Audio;Player;
+X-Desktop-File-Install-Version=0.15

@@ -1,0 +1,12 @@
+group "StringList_Descriptor" struct {
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "UTF-8";
+    }
+  }
+  group "list" list {
+    group "String_Descriptor" struct {
+      value "value" string: "ISO8859-1";
+    }
+  }
+}

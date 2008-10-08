@@ -1,0 +1,13 @@
+#define DEFAULT_TIMEOUT 0.0
+#define WIDGET_CLIPPER_NO_FOCUS_COLOR 255 255 255 128
+
+fonts {
+   font: "Arial-Black.ttf" "Bold";
+   font: "Arial-Regular.ttf" "Regular";
+}
+
+collections {
+#include "principal.edc"
+#include "panel.edc"
+#include "playlist.edc"
+}

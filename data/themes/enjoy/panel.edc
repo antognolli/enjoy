@@ -1,0 +1,910 @@
+   group {
+      name: "screen/panel";
+      min: 480 361;
+      max: 480 361;
+      images {
+         image: "bg-info.png" COMP;
+         image: "shadow-panel.png" COMP;
+         image: "time-bar.png" COMP;
+         image: "time-knob.png" COMP;
+         image: "bg-panel.png" COMP;
+         image: "bt-back.png" COMP;
+         image: "bt-play.png" COMP;
+         image: "bt-pause.png" COMP;
+         image: "bt-next.png" COMP;
+         image: "bt-back-pressed.png" COMP;
+         image: "bt-play-pressed.png" COMP;
+         image: "bt-pause-pressed.png" COMP;
+         image: "bt-next-pressed.png" COMP;
+         image: "bt-info.png" COMP;
+         image: "bt-info-pressed.png" COMP;
+         image: "bt-hide.png" COMP;
+         image: "bt-hide-pressed.png" COMP;
+         image: "volume-full.png" COMP;
+         image: "volume-empty.png" COMP;
+         image: "volume-bar.png" COMP;
+         image: "volume-knob.png" COMP;
+         image: "no-cover.png" COMP;
+      }
+
+      script {
+         public send_progress_set() {
+            new Float:val;
+            new Float:ox, Float:oy;
+
+            get_drag(PART:"time-drag", ox, oy);
+            val = ox;
+            send_message(MSG_FLOAT, 1, val);
+         }
+
+         public send_volume_set() {
+            new Float:val;
+            new Float:ox, Float:oy;
+
+            get_drag(PART:"volume-drag", ox, oy);
+            val = ox;
+            send_message(MSG_FLOAT, 2, val);
+         }
+
+         public time_to_str(buf[32], time) {
+            new hour, minute, second, tmp;
+            new sec_buf[3], min_buf[3];
+
+            hour = time / 3600;
+            tmp = time % 3600;
+            minute = tmp / 60;
+            second = tmp % 60;
+
+            if (second < 10)
+                snprintf(sec_buf, sizeof(sec_buf), "0%d", second);
+            else
+                snprintf(sec_buf, sizeof(sec_buf), "%d", second);
+
+            if (minute < 10)
+                snprintf(min_buf, sizeof(min_buf), "0%d", minute);
+            else
+                snprintf(min_buf, sizeof(min_buf), "%d", minute);
+
+            if (hour > 0)
+                snprintf(buf, sizeof(buf), "%d:%s:%s", hour, min_buf, sec_buf);
+            else
+                snprintf(buf, sizeof(buf), "%s:%s", min_buf, sec_buf);
+         }
+
+         public message(Msg_Type:type, id, ...) {
+            if (type == MSG_FLOAT_SET && id == 1) {
+               new Float:elapsed, Float:total;
+               new Float:val;
+               new int_elapsed, int_total, int_remain;
+               new buf[32];
+
+               elapsed = getfarg(2);
+               total = getfarg(3);
+               int_elapsed = round(elapsed);
+               int_total = round(total);
+               int_remain = int_total - int_elapsed;
+
+               if (total)
+                  val = elapsed / total;
+               else
+                  val = 0;
+               set_drag(PART:"time-drag", val, 0.0);
+               time_to_str(buf, int_elapsed);
+               set_text(PART:"gui.text.time_elapsed", buf);
+               time_to_str(buf, int_remain);
+               set_text(PART:"gui.text.time_remain", buf);
+            } else if (type == MSG_FLOAT && id == 2) {
+               new Float:val;
+               val = getfarg(2);
+               set_drag(PART:"volume-drag", val, 0.0);
+            }
+         }
+      }
+
+      parts {
+         part {
+            name: "bg-info";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 1.0;
+                  offset: 0 -206;
+               }
+               rel2 {
+                  relative: 1.0 1.0;
+                  offset: -1 -1;
+               }
+               image.normal: "bg-info.png";
+            }
+         }
+
+         part {
+            name: "gui.text.title";
+            type: TEXT;
+            effect: NONE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+               color3: 0 0 0 64;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 190 45;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 1.0 0.0;
+                  offset: -10 65;
+               }
+               text {
+                  font: "Bold";
+                  size: 12;
+                  text: "music title";
+                  align: 0.0 0.0;
+               }
+            }
+         }
+
+         part {
+            name: "gui.text.album";
+            type: TEXT;
+            effect: NONE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+               color3: 0 0 0 64;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 190 75;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 1.0 0.0;
+                  offset: -10 95;
+               }
+               text {
+                  font: "Regular";
+                  size: 12;
+                  text: "album";
+                  align: 0.0 0.0;
+               }
+            }
+         }
+
+         part {
+            name: "gui.text.artist";
+            type: TEXT;
+            effect: NONE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+               color3: 0 0 0 64;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 190 105;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 1.0 0.0;
+                  offset: -10 125;
+               }
+               text {
+                  font: "Regular";
+                  size: 12;
+                  text: "artist";
+                  align: 0.0 0.0;
+               }
+            }
+         }
+
+         part {
+            name: "gui.text.time_elapsed";
+            type: TEXT;
+            effect: NONE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+               color3: 0 0 0 64;
+               rel1 {
+                  to: "time-bar";
+                  relative: 0.0 0.0;
+                  offset: -100 0;
+               }
+               rel2 {
+                  to: "time-bar";
+                  relative: 0.0 1.0;
+                  offset: -11 -1;
+               }
+               text {
+                  font: "Regular";
+                  size: 11;
+                  text: "00:00";
+                  min: 1 1;
+                  align: 1.0 0.0;
+               }
+            }
+         }
+
+         part {
+            name: "gui.text.time_remain";
+            type: TEXT;
+            effect: NONE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 255 255 255 255;
+               color3: 0 0 0 64;
+               rel1 {
+                  to: "time-bar";
+                  relative: 1.0 0.0;
+                  offset: 10 0;
+               }
+               rel2 {
+                  to_y: "time-bar";
+                  relative: 1.0 1.0;
+                  offset: -10 -1;
+               }
+               text {
+                  font: "Regular";
+                  size: 11;
+                  text: "00:00";
+                  min: 1 1;
+                  align: 0.0 0.0;
+               }
+            }
+         }
+
+         part {
+            name: "no-cover";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               min: 129 129;
+               max: 129 129;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 34 34;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 162 162;
+               }
+               image.normal: "no-cover.png";
+            }
+         }
+
+         part {
+            name: "time-bar";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 230 148;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 1.0 0.0;
+                  offset: -74 155;
+               }
+               image {
+                  normal: "time-bar.png";
+                  border: 8 8 0 0;
+               }
+            }
+         }
+
+         part {
+            name: "time-area";
+            type: RECT;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 0;
+               rel1 {
+                  to: "bg-info";
+                  relative: 0.0 0.0;
+                  offset: 230 123;
+               }
+               rel2 {
+                  to: "bg-info";
+                  relative: 1.0 0.0;
+                  offset: -74 182;
+               }
+            }
+         }
+
+         part {
+            name: "time-knob";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               min: 24 24;
+               max: 24 24;
+               image.normal: "time-knob.png";
+               rel1 {
+                  to: "time-drag";
+               }
+               rel2 {
+                  to: "time-drag";
+               }
+            }
+         }
+
+         part {
+            name: "time-drag";
+            type: RECT;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 0;
+               min: 24 60;
+               max: 24 60;
+            }
+            dragable {
+               confine: "time-area";
+               x: 1 1 1;
+               y: 0 0 0;
+            }
+         }
+
+         programs {
+            program {
+               name: "gui,action,play";
+               signal: "mouse,clicked,1";
+               source: "bt-play";
+               action: SIGNAL_EMIT "gui,action,play" "";
+            } // gui,action,play
+
+            program {
+               name: "gui,action,pause";
+               signal: "mouse,clicked,1";
+               source: "bt-pause";
+               action: SIGNAL_EMIT "gui,action,pause" "";
+            } // gui,action,pause
+
+            program {
+               name: "gui,action,next";
+               signal: "mouse,clicked,1";
+               source: "bt-next";
+               action: SIGNAL_EMIT "gui,action,next" "";
+            } // gui,action,next
+
+            program {
+               name: "gui,action,previous";
+               signal: "mouse,clicked,1";
+               source: "bt-back";
+               action: SIGNAL_EMIT "gui,action,previous" "";
+            } // gui,action,previous
+
+            program {
+               name: "gui,previous,down";
+               signal: "mouse,down,1";
+               source: "bt-back";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-back";
+            }
+
+            program {
+               name: "gui,previous,up";
+               signal: "mouse,up,1";
+               source: "bt-back";
+               action: STATE_SET "default" 0.0;
+               target: "bt-back";
+            }
+
+            program {
+               name: "gui,next,down";
+               signal: "mouse,down,1";
+               source: "bt-next";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-next";
+            }
+
+            program {
+               name: "gui,next,up";
+               signal: "mouse,up,1";
+               source: "bt-next";
+               action: STATE_SET "default" 0.0;
+               target: "bt-next";
+            }
+
+            program {
+               name: "gui,play,down";
+               signal: "mouse,down,1";
+               source: "bt-play";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-play";
+            }
+
+            program {
+               name: "gui,play,up";
+               signal: "mouse,up,1";
+               source: "bt-play";
+               action: STATE_SET "default" 0.0;
+               target: "bt-play";
+            }
+
+            program {
+               name: "gui,pause,down";
+               signal: "mouse,down,1";
+               source: "bt-pause";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-pause";
+            }
+
+            program {
+               name: "gui,pause,up";
+               signal: "mouse,up,1";
+               source: "bt-pause";
+               action: STATE_SET "hidden" 0.0;
+               target: "bt-pause";
+            }
+
+            program {
+               name: "gui,action,progress_set";
+               signal: "drag,stop";
+               source: "time-drag";
+               script: {
+                  send_progress_set();
+               }
+            }
+
+            program {
+               name: "gui,action,volume_set";
+               signal: "drag";
+               source: "volume-drag";
+               script: {
+                  send_volume_set();
+               }
+            }
+         } // programs
+
+         part {
+            name: "bg-panel";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 0 0;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -1 158;
+               }
+               image {
+                  normal: "bg-panel.png";
+                  border: 0 100 0 0;
+               }
+            }
+         }
+
+         part {
+            name: "bt-back";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 64 64;
+               max: 64 64;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 16 48;
+               }
+               rel2 {
+                  relative: 0.0 0.0;
+                  offset: 79 111;
+               }
+               image.normal: "bt-back.png";
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image.normal: "bt-back-pressed.png";
+            }
+         }
+
+         part {
+            name: "bt-play";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 86 86;
+               max: 86 86;
+               visible: 1;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 94 36;
+               }
+               rel2 {
+                  relative: 0.0 0.0;
+                  offset: 179 121;
+               }
+               image.normal: "bt-play.png";
+            }
+            description {
+               state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               visible: 0;
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image.normal: "bt-play-pressed.png";
+            }
+         }
+
+         part {
+            name: "bt-pause";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 86 86;
+               max: 86 86;
+               visible: 0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 94 36;
+               }
+               rel2 {
+                  relative: 0.0 0.0;
+                  offset: 179 121;
+               }
+               image.normal: "bt-pause.png";
+            }
+            description {
+               state: "show" 0.0;
+               inherit: "default" 0.0;
+               visible: 1;
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               visible: 1;
+               image.normal: "bt-pause-pressed.png";
+            }
+         }
+
+         programs {
+            program {
+               name: "gui,show,pause";
+               signal: "gui,action,playing";
+               source: "";
+               action: STATE_SET "show" 0.0;
+               target: "bt-pause";
+               after: "gui,hide,play";
+            }
+            program {
+               name: "gui,hide,play";
+               action: STATE_SET "hidden" 0.0;
+               target: "bt-play";
+            }
+
+            program {
+               name: "gui,show,play";
+               signal: "gui,action,stopped";
+               source: "";
+               action: STATE_SET "default" 0.0;
+               target: "bt-play";
+               after: "gui,hide,pause";
+            }
+            program {
+               name: "gui,hide,pause";
+               action: STATE_SET "default" 0.0;
+               target: "bt-pause";
+            }
+         }
+
+         part {
+            name: "bt-next";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 64 64;
+               max: 64 64;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 192 48;
+               }
+               rel2 {
+                  relative: 0.0 0.0;
+                  offset: 254 111;
+               }
+               image.normal: "bt-next.png";
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image.normal: "bt-next-pressed.png";
+            }
+         }
+
+         part {
+            name: "volume-full";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               min: 20 17;
+               max: 20 17;
+               rel1 {
+                  to: "volume-bar";
+                  relative: 1.0 0.0;
+                  offset: 6 0;
+               }
+               rel2 {
+                  to: "volume-bar";
+                  relative: 1.0 1.0;
+                  offset: 25 -1;
+               }
+               image.normal: "volume-full.png";
+            }
+         }
+
+         part {
+            name: "volume-empty";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               min: 14 17;
+               max: 14 17;
+               rel1 {
+                  to: "volume-bar";
+                  relative: 0.0 0.0;
+                  offset: -20 0;
+               }
+               rel2 {
+                  to: "volume-bar";
+                  relative: 0.0 1.0;
+                  offset: -7 -1;
+               }
+               image.normal: "volume-empty.png";
+            }
+         }
+
+         part {
+            name: "volume-bar";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 293 76;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -38 84;
+               }
+               image {
+                  normal: "volume-bar.png";
+                  border: 8 8 0 0;
+               }
+            }
+         }
+
+         part {
+            name: "volume-area";
+            type: RECT;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 293 50;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -38 109;
+               }
+            }
+         }
+
+         part {
+            name: "volume-knob";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               min: 24 24;
+               max: 24 24;
+               image.normal: "volume-knob.png";
+               rel1 {
+                  to: "volume-drag";
+               }
+               rel2 {
+                  to: "volume-drag";
+               }
+            }
+         }
+
+         part {
+            name: "volume-drag";
+            type: RECT;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 0;
+               min: 24 60;
+               max: 24 60;
+            }
+            dragable {
+               confine: "volume-area";
+               x: 1 1 1;
+               y: 0 0 0;
+            }
+         }
+
+         part {
+            name: "shadow-panel";
+            type: IMAGE;
+            mouse_events: 0;
+            description {
+               state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+                  offset: 0 159;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -1 168;
+               }
+               image.normal: "shadow-panel.png";
+            }
+         }
+
+         part {
+            name: "bt-hide";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 33 33;
+               max: 33 33;
+               visible: 1;
+               rel1 {
+                  relative: 1.0 0.0;
+                  offset: -60 120;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -28 152;
+               }
+               image.normal: "bt-hide.png";
+            }
+            description {
+               state: "hidden" 0.0;
+               inherit: "default" 0.0;
+               visible: 0;
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image.normal: "bt-hide-pressed.png";
+            }
+         }
+
+         part {
+            name: "bt-info";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               min: 33 33;
+               max: 33 33;
+               visible: 0;
+               rel1 {
+                  relative: 1.0 0.0;
+                  offset: -60 120;
+               }
+               rel2 {
+                  relative: 1.0 0.0;
+                  offset: -28 152;
+               }
+               image.normal: "bt-info.png";
+            }
+            description {
+               state: "show" 0.0;
+               inherit: "default" 0.0;
+               visible: 1;
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               visible: 1;
+               image.normal: "bt-info-pressed.png";
+            }
+         }
+
+         programs {
+            program {
+               name: "gui,hide,info";
+               signal: "mouse,clicked,1";
+               source: "bt-hide";
+               action: SIGNAL_EMIT "view,change,hide_info" "";
+            }
+            program {
+               signal: "gui,show,info";
+               signal: "mouse,clicked,1";
+               source: "bt-info";
+               action: SIGNAL_EMIT "view,change,show_info" "";
+            }
+
+            program {
+               name: "gui,show,bt-info";
+               signal: "view,change,hide_info";
+               action: STATE_SET "show" 0.0;
+               target: "bt-info";
+               after: "gui,hide,bt-hide";
+            }
+            program {
+               name: "gui,hide,bt-hide";
+               action: STATE_SET "hidden" 0.0;
+               target: "bt-hide";
+            }
+
+            program {
+               name: "gui,show,bt-hide";
+               signal: "view,change,show_info";
+               action: STATE_SET "default" 0.0;
+               target: "bt-hide";
+               after: "gui,hide,bt-info";
+            }
+            program {
+               name: "gui,hide,bt-info";
+               action: STATE_SET "default" 0.0;
+               target: "bt-info";
+            }
+
+            program {
+               name: "gui,bt-hide,down";
+               signal: "mouse,down,1";
+               source: "bt-hide";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-hide";
+            }
+            program {
+               name: "gui,bt-hide,up";
+               signal: "mouse,up,1";
+               source: "bt-hide";
+               action: STATE_SET "default" 0.0;
+               target: "bt-hide";
+            }
+            program {
+               name: "gui,bt-info,down";
+               signal: "mouse,down,1";
+               source: "bt-info";
+               action: STATE_SET "pressed" 0.0;
+               target: "bt-info";
+            }
+            program {
+               name: "gui,bt-info,up";
+               signal: "mouse,up,1";
+               source: "bt-info";
+               action: STATE_SET "show" 0.0;
+               target: "bt-info";
+            }
+         }
+      }
+   }
